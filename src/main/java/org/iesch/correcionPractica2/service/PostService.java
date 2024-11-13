@@ -1,20 +1,26 @@
 package org.iesch.correcionPractica2.service;
 
+import org.iesch.correcionPractica2.model.Comentario;
+import org.iesch.correcionPractica2.model.CommentDTO;
 import org.iesch.correcionPractica2.model.Post;
 import org.iesch.correcionPractica2.model.PostDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 public class PostService {
     @Autowired
     HashMap<Long, Post> listaPost;
+
+    @Autowired
+    List<String> palabrasProhibidas;
 
     public ResponseEntity<?> getAll() {
         return ResponseEntity.ok(listaPost);
@@ -61,5 +67,35 @@ public class PostService {
         Post post = listaPost.get(id);
 
         return ResponseEntity.ok(post);
+    }
+
+    public ResponseEntity<?> comentar(long id, CommentDTO commentDTO) {
+
+        if(contienePalabraProhibida(commentDTO.getComentario())){
+            commentDTO.setComentario("El comentario no se publico por Palabra Mal Sonante");
+            return ResponseEntity.ok(commentDTO);
+        }else {
+            Post post = listaPost.get(id);
+            Comentario comentario = new Comentario();
+            comentario.setComentario(commentDTO.getComentario());
+            comentario.setFecha(LocalDateTime.now());
+            comentario.setCreador(commentDTO.getCreador());
+            post.getComentarios().add(comentario);
+
+            return ResponseEntity.ok(post);
+
+        }
+
+
+    }
+
+    private boolean contienePalabraProhibida(String comentario) {
+        for (String palabraProhibida : palabrasProhibidas){
+            String pattherString = "\\b" + Pattern.quote(comentario) + "\\b";
+            if(palabraProhibida.toLowerCase().matches(pattherString.toLowerCase())){
+                return true;
+            }
+        }
+        return false;
     }
 }

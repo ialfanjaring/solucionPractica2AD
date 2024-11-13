@@ -1,5 +1,6 @@
 package org.iesch.correcionPractica2.controller;
 
+import org.iesch.correcionPractica2.model.CommentDTO;
 import org.iesch.correcionPractica2.model.Post;
 import org.iesch.correcionPractica2.model.PostDTO;
 import org.iesch.correcionPractica2.service.PostService;
@@ -39,5 +40,10 @@ public class PostController {
     @GetMapping("/api/get/{id}")
     public ResponseEntity<?> get(@PathVariable long id){
         return postService.get(id);
+    }
+
+    @PostMapping("/api/comentario/{id}")
+    public ResponseEntity<?> comentar(@PathVariable long id, @RequestBody CommentDTO commentDTO){
+        return postService.comentar(id, commentDTO);
     }
 }
